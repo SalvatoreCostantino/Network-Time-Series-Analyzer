@@ -18,8 +18,8 @@ def checkTreshold (actual, a_type, host, ifid, stats, date, host_type, th_val):
     
     if(actual >= th_val):
         if(not (host in anomalyHost) and cf.verbose):
-            print("---> ANOMALY TYPE: %-22s HOST/MAC: %-30s IF: %-5s DATE: %-25s METHOD: TR-VAL %.2f\n"
-                % (a_type,host,ifid,date, min(100.00, actual)),end = '',flush = True)
+            print("---> ANOMALY TYPE: %-22s HOST/MAC: %-30s IF: %-5s DATE: %-25s METHOD: TR-VAL %.1f\n"
+                % (a_type,host,ifid,date, min(10000.00, actual)),end = '',flush = True)
             anomalyHost.append(host)
         stats["general"][a_type]['anomalies']+=1
         stats["host"][host][a_type]['anomalies']+=1
