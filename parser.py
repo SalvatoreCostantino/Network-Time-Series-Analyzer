@@ -12,6 +12,10 @@ def parseArg():
         description="Time Series Analizer",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=examples)
+    parser.add_argument("-c", "--cat",
+        help="check ndpi categories", action='store_true')
+    parser.add_argument("-p", "--prophet",
+        help="prophet diagnostic",  action='store_true')
     parser.add_argument("-f", "--file",
         help="output file")
     parser.add_argument("-d", "--dir",

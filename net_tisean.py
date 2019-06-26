@@ -15,9 +15,8 @@ from parser import parseArg
 if cf.mitigation:
     import firewall as fw
 
-if(cf.prophet_diagnostic):
-    from multiprocessing import Process, Queue
-    import queue as qu
+from multiprocessing import Process, Queue
+import queue as qu
 
 closing = False
 processes=[None, None]
@@ -71,15 +70,11 @@ def initializeScheduler(client1h,client5m,queue,cumStats):
     if(cf.prophet_diagnostic):
         schedule.every().hour.at(cf.minuteProphet).do(ForkProcess,client1h,client5m,queue)
 
+f = None
 
-def main():
+def initiaizeArgs(args):
+    global f
 
-    args = parseArg()
-
-    print("net_tisean (network time series analyzer) v1.0 started")
-
-
-    f = None
     if args.file: # se scrittura su file 
         try:
             f=open(args.file,'w')
@@ -95,6 +90,18 @@ def main():
             createDir(cf.graphDir)
     else:
         createDir(cf.graphDir)
+    
+    cf.prophet_diagnostic = args.prophet
+    cf.checkCat = args.cat
+    
+
+def main():
+
+    args = parseArg()
+
+    print("net_tisean (network time series analyzer) v1.0 started")
+
+    initiaizeArgs(args)
     
     client1h = DataFrameClient(host=cf.influxHost, port=cf.influxPort)
     client5m =  InfluxDBClient(host=cf.influxHost, port=cf.influxPort)
