@@ -17,6 +17,7 @@ ntopng >= 3.9.190625
 
 USAGE  
 
+The first time execute ./configure.sh
 python3.6 ./net_tisean.py [-h] [-c] [-p] [-f FILE] [-d DIR]  
 
 BASIC EXAMPLE  
