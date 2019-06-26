@@ -1,7 +1,6 @@
 # Network-Time-Series-Analyzer
 Hybrid anomaly-based intrusion detection system  
 
-
 DEPENDENCIES INSTALLATION  
 
 sudo apt-get update  
@@ -11,11 +10,14 @@ python3.6 -m pip install fbprophet
 python3.6 -m pip install influxdb  
 python3.6 -m pip install schedule  
 
+OTHER DEPENDENCIES  
+
+influxdb >= 1.7.6  
+ntopng >= 3.9.190625  
 
 USAGE  
 
 python3.6 ./net_tisean.py [-h] [-c] [-p] [-f FILE] [-d DIR]  
-
 
 BASIC EXAMPLE  
 
