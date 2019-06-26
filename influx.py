@@ -176,7 +176,7 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
                             thVal = cf.ratio_treshold
 
                         if( not checkTreshold(truncate(sum_numerator/sum_denumerator), measurements[measure]["name"],
-                            ip['value'],ifid,statsTreshold,n_points[i]['time'],"ip",thVal)):
+                            ip['value'],ifid,statsTreshold,n_points[i]['time'],"ip",thVal) or thVal == cf.flooding_treshold):
                             continue
 
                         series.append(truncate(sum_numerator/sum_denumerator))
