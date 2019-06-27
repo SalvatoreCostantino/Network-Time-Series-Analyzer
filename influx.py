@@ -29,7 +29,7 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
 
     
         key=numerator.split(':')[0]
-        hosts = client.query('SHOW TAG VALUES ON "ntopng" FROM "autogen"."%s" WITH KEY = "%s" LIMIT 2000' % (numerator,key))
+        hosts = client.query('SHOW TAG VALUES ON "ntopng" FROM "autogen"."%s" WITH KEY = "%s" LIMIT 2500' % (numerator,key))
         
         
         m_numerator = []
@@ -211,7 +211,7 @@ def influxQuery1h(client1h, client5m, num_points, dim_vlset, measurements,interf
     w_clause= start_time + "-" + str((num_points-1)) + "h AND time < "+start_time
 
     for measure in measurements:
-        hosts = client1h.query('SHOW TAG VALUES ON "ntopng" FROM "1h"."%s" WITH KEY = "host" LIMIT 2000' % (measure.split()[0]))
+        hosts = client1h.query('SHOW TAG VALUES ON "ntopng" FROM "1h"."%s" WITH KEY = "host" LIMIT 25' % (measure.split()[0]))
         ips = hosts.get_points()
 
         for ip in ips:
