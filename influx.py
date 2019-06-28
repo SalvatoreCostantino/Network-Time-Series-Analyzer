@@ -29,7 +29,7 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
 
     
         key=numerator.split(':')[0]
-        hosts = client.query('SHOW TAG VALUES ON "ntopng" FROM "autogen"."%s" WITH KEY = "%s" LIMIT 2500' % (numerator,key))
+        hosts = client.query('SHOW TAG VALUES ON "ntopng" FROM "autogen"."%s" WITH KEY = "%s" LIMIT 3000' % (numerator,key))
         
         
         m_numerator = []
@@ -175,11 +175,13 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
                         else:
                             thVal = cf.ratio_treshold
 
-                        if( not checkTreshold(truncate(sum_numerator/sum_denumerator), measurements[measure]["name"],
+                        ratioValue =  truncate(sum_numerator/sum_denumerator)
+
+                        if( not checkTreshold(ratioValue, measurements[measure]["name"],
                             ip['value'],ifid,statsTreshold,n_points[i]['time'],"ip",thVal) or thVal == cf.flooding_treshold):
                             continue
 
-                        series.append(truncate(sum_numerator/sum_denumerator))
+                        series.append(ratioValue)
                         if(len(series) >= min_points or w_clause == "now()-5m"):
                             seriesDate.append(n_points[i]['time'])
 
@@ -205,13 +207,11 @@ def influxQuery1h(client1h, client5m, num_points, dim_vlset, measurements,interf
                     p_rate = 0.75,start_time=None):
     
     signal.signal(signal.SIGINT, signal.SIG_IGN)
-    counter = 0
-    sum_time = 0
     start_time=start_time if start_time!=None else "now()"
     w_clause= start_time + "-" + str((num_points-1)) + "h AND time < "+start_time
 
     for measure in measurements:
-        hosts = client1h.query('SHOW TAG VALUES ON "ntopng" FROM "1h"."%s" WITH KEY = "host" LIMIT 25' % (measure.split()[0]))
+        hosts = client1h.query('SHOW TAG VALUES ON "ntopng" FROM "1h"."%s" WITH KEY = "host" LIMIT 30' % (measure.split()[0]))
         ips = hosts.get_points()
 
         for ip in ips:
@@ -237,8 +237,7 @@ def influxQuery1h(client1h, client5m, num_points, dim_vlset, measurements,interf
                     prophet(df, int(dim_vlset*(df.shape[0]/num_points)), '1H', 
                         measurements[measure]["name"], ip['value'],ifid, client5m, categories, metric, influxNdpiCategoriesQuery,cf.showGraph) #start fitting and prediction
     
-    mean_end_time = (sum_time / counter) if counter != 0 else 0
-    queue.put((mean_end_time, statsProphet))
+    queue.put((None, statsProphet))
     queue.close()
 
 

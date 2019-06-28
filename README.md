@@ -6,6 +6,7 @@ DEPENDENCIES INSTALLATION
 sudo apt-get update  
 sudo apt-get install python3.6  
 
+python3.6 -m pip install pystan    
 python3.6 -m pip install fbprophet  
 python3.6 -m pip install influxdb  
 python3.6 -m pip install schedule  
