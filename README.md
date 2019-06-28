@@ -3,6 +3,7 @@ Hybrid anomaly-based intrusion detection system
 
 DEPENDENCIES INSTALLATION  
 
+Only for Ubuntu < 16.10, execute: sudo add-apt-repository ppa:deadsnakes/ppa  
 sudo apt-get update  
 sudo apt-get install python3.6  
 
@@ -18,7 +19,7 @@ ntopng >= 3.9.190625
 
 USAGE  
 
-The first time execute ./configure.sh  
+The first time execute: ./configure.sh  
 python3.6 ./net_tisean.py [-h] [-c] [-p] [-f FILE] [-d DIR]  
 
 BASIC EXAMPLE  
