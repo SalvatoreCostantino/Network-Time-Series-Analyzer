@@ -28,6 +28,14 @@ def updateHostStats(currStats,cumStats,method):
         else:
             cumStats.update({host:{method:currStats[host]}})
 
+def updateAllHostStats(currStatsRSI,currStatsTH,cumStats):
+    updateHostStats(currStatsRSI["host"],cumStats["host"],"RSI")
+    updateHostStats(currStatsTH["host"],cumStats["host"],"TRESHOLD")    
+
+
+def updateAllGeneralStats(currStatsRSI,currStatsTH,cumStats):
+    updateGeneralStats(currStatsRSI["general"],cumStats["general"],"RSI")
+    updateGeneralStats(currStatsTH["general"],cumStats["general"],"TRESHOLD")
 
         
 def mergeStats(currStats,cumStats,method):

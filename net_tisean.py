@@ -4,7 +4,7 @@ logging.basicConfig(level=logging.CRITICAL)
 from influxdb import DataFrameClient,  InfluxDBClient
 from influx import influxQuery1h, influxQuery5m, statsRSI,statsTreshold
 import schedule
-from utils import HostStats, printGeneralStats, updateGeneralStats,mergeStats,updateHostStats, createDir
+from utils import HostStats, printGeneralStats, updateAllGeneralStats,mergeStats,updateAllHostStats, createDir
 import time as tm
 import os
 import config as cf
@@ -30,7 +30,7 @@ def signal_handler(signal, frame):
 
 def startRSI(client5m,printAll,cumulative_stat):
     influxQuery5m(client5m,cf.num_points5m,cf.period+1,cf.measurements5m,cf.interfaces,cf.start_time)
-    updateHostStats(statsRSI["host"],cumulative_stat["host"],"RSI")
+    updateAllHostStats(startRSI, statsTreshold, cumulative_stat)
     addresses = HostStats(cumulative_stat["host"],cf.scoreTable,printAll)
     if cf.mitigation:
         fw.block(addresses)
@@ -40,10 +40,10 @@ def startRSI(client5m,printAll,cumulative_stat):
 def ForkProcess(client1h,client5m,queue):    
     processes[0] = Process(target=influxQuery1h, 
         args=(client1h,client5m,cf.num_points1h,cf.dim_vlset,cf.measurements1h["P0"],
-                cf.interfaces,queue,cf.categories,cf.p_rate,cf.start_time))
+        cf.interfaces,queue,cf.categories,cf.p_rate,cf.start_time))
     processes[1] = Process(target=influxQuery1h, 
         args=(client1h,client5m,cf.num_points1h,cf.dim_vlset,cf.measurements1h["P1"],
-                cf.interfaces,queue,cf.categories,cf.p_rate,cf.start_time))
+        cf.interfaces,queue,cf.categories,cf.p_rate,cf.start_time))
     for proc in processes:
         proc.start()
 
@@ -53,7 +53,7 @@ def checkJoin(stats,queue):
         if proc!=None:
             if(proc.is_alive()):
                 try:
-                    mergeStats(queue.get(timeout=1)[1],stats,"PROPHET")
+                    mergeStats(queue.get(timeout=1),stats,"PROPHET")
                 except qu.Empty:
                     pass
                 proc.join(1)
@@ -140,17 +140,16 @@ def main():
 
         if(cf.prophet_diagnostic):
             for _ in range(2):
-                _, sts = q.get()
+                sts = q.get()
                 mergeStats(sts,cumulative_stat,"PROPHET")
         
-        updateHostStats(statsRSI["host"],cumulative_stat["host"],"RSI")
-        updateHostStats(statsTreshold["host"],cumulative_stat["host"],"TRESHOLD")
+        updateAllHostStats(statsRSI, statsTreshold, cumulative_stat)
+
         addresses = HostStats(cumulative_stat["host"],cf.scoreTable,True)
         if cf.mitigation:
             fw.block(addresses)
 
-    updateGeneralStats(statsRSI["general"],cumulative_stat["general"],"RSI")
-    updateGeneralStats(statsTreshold["general"],cumulative_stat["general"],"TRESHOLD")
+    updateAllGeneralStats(startRSI, statsTreshold, cumulative_stat)
 
     printGeneralStats(cumulative_stat["general"])
     

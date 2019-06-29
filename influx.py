@@ -237,7 +237,7 @@ def influxQuery1h(client1h, client5m, num_points, dim_vlset, measurements,interf
                     prophet(df, int(dim_vlset*(df.shape[0]/num_points)), '1H', 
                         measurements[measure]["name"], ip['value'],ifid, client5m, categories, metric, influxNdpiCategoriesQuery,cf.showGraph) #start fitting and prediction
     
-    queue.put((None, statsProphet))
+    queue.put(statsProphet)
     queue.close()
 
 
