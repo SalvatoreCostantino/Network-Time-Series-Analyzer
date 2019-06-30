@@ -149,7 +149,7 @@ def main():
         if cf.mitigation:
             fw.block(addresses)
 
-    updateAllGeneralStats(startRSI, statsTreshold, cumulative_stat)
+    updateAllGeneralStats(statsRSI, statsTreshold, cumulative_stat)
 
     printGeneralStats(cumulative_stat["general"])
     
