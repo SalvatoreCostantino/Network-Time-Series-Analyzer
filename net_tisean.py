@@ -84,9 +84,9 @@ def initiaizeArgs(args):
     
     if args.dir:
         if os.path.isdir(args.dir):
-            cf.graphDir = args.__dir
-            print("directory not found: %s" % args.dir)
+            cf.graphDir = args.dir if args.dir[-1] == '/' else args.dir + '/'
         else:
+            print("directory not found: %s" % args.dir)
             createDir(cf.graphDir)
     else:
         createDir(cf.graphDir)

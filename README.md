@@ -7,6 +7,9 @@ Only for Ubuntu < 16.10, execute: sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt-get update  
 sudo apt-get install python3.6  
 
+python3.6 -m pip install numpy
+python3.6 -m pip install matplotlib
+python3.6 -m pip install pandas
 python3.6 -m pip install pystan    
 python3.6 -m pip install fbprophet  
 python3.6 -m pip install influxdb  

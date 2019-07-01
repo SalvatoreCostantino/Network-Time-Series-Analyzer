@@ -29,7 +29,7 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
 
     
         key=numerator.split(':')[0]
-        hosts = client.query('SHOW TAG VALUES ON "ntopng" FROM "autogen"."%s" WITH KEY = "%s" LIMIT 3000' % (numerator,key))
+        hosts = client.query('SHOW TAG VALUES ON "ntopng" FROM "autogen"."%s" WITH KEY = "%s" LIMIT 3500' % (numerator,key))
         
         
         m_numerator = []
