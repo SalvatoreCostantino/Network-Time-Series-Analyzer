@@ -1,15 +1,17 @@
 import pandas as pd
-from prophet import prophet, statsProphet, resetProphetAnomalies
+from prophet import prophet, statsProphet
 from RSI import RSI
 import sys
 import config as cf
 import signal
 from utils import isLocalHost, convertDate, truncate, checkNotZero 
 import time
-from TresholdCkecker import checkTreshold, resetTresholdAnomalies
+from TresholdCkecker import checkTreshold
+from HostProphet import HostProphet
 
 
-host = {} #host <-> RSI objects (one for each RSI metric)
+hostRSI = {} #host <-> RSI objects (one for each RSI metric)
+hostPROPHET = {}
 statsRSI = {"general":{},"host":{}} #RSI stats
 statsTreshold = {"general":{},"host":{}} #treshold
 
@@ -29,7 +31,8 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
 
     
         key=numerator.split(':')[0]
-        hosts = client.query('SHOW TAG VALUES ON "ntopng" FROM "autogen"."%s" WITH KEY = "%s" LIMIT 3500' % (numerator,key))
+        hosts = client.query('SHOW TAG VALUES ON "ntopng" FROM "autogen"."%s" WITH KEY = "%s" LIMIT %s'
+            % (numerator,key,str(cf.limitRSI)))
         
         
         m_numerator = []
@@ -70,9 +73,10 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
 
             for ifid in interfaces:
 
+                #key
                 host_interface_measure = ip['value']+"|"+ifid+"|"+measurements[measure]["name"]
 
-                if(start_time == "now()" and host_interface_measure in host):
+                if(start_time == "now()" and host_interface_measure in hostRSI):
                     w_clause = start_time + "-5m"
                     min_points = 1
                 else:
@@ -185,11 +189,11 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
                         if(len(series) >= min_points or w_clause == "now()-5m"):
                             seriesDate.append(n_points[i]['time'])
 
-                if (w_clause!="now()-5m"):
+                if (w_clause!="now() - 5m"):
                     if (len(series) >= min_points):
                         if(start_time == "now()"):
                             rsi = RSI(series[-min_points:],min_points-1,ip['value'],measurements[measure]["name"],ifid,seriesDate[0]+"|wu",statsRSI)
-                            host.update({host_interface_measure:rsi})
+                            hostRSI.update({host_interface_measure:rsi})
                         else:
                             rsi = RSI(series[:min_points],min_points-1,ip['value'],measurements[measure]["name"],ifid,seriesDate[0]+"|wu",statsRSI)
                             test_series = series[min_points:]
@@ -197,22 +201,25 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
                                 rsi.next(test_series[i],seriesDate[i+1],statsRSI)
                 else:
                     if(len(series)>=1):
-                        host[host_interface_measure].next(series[-1],seriesDate[-1],statsRSI)
-
-        resetProphetAnomalies()
-        resetTresholdAnomalies()
-
+                        hostRSI[host_interface_measure].next(series[-1],seriesDate[-1],statsRSI)
 
 def influxQuery1h(client1h, client5m, num_points, dim_vlset, measurements,interfaces,queue,categories,
                     p_rate = 0.75,start_time=None):
     
     signal.signal(signal.SIGINT, signal.SIG_IGN)
-    start_time=start_time if start_time!=None else "now()"
-    w_clause= start_time + "-" + str((num_points-1)) + "h AND time < "+start_time
+    start_time = start_time if start_time!=None else "now()"
+    w_clause = start_time + "-" + str((num_points-1)) + "h AND time < "+start_time
 
     for measure in measurements:
-        hosts = client1h.query('SHOW TAG VALUES ON "ntopng" FROM "1h"."%s" WITH KEY = "host" LIMIT 30' % (measure.split()[0]))
+        hosts = client1h.query('SHOW TAG VALUES ON "ntopng" FROM "1h"."%s" WITH KEY = "host" LIMIT %s' 
+            % (measure.split()[0],str(cf.limitProphet)))
         ips = hosts.get_points()
+
+        if(cf.checkCat):
+            metric = measurements[measure]["metric"]
+            metric = "bytes_sent" if (metric.find("sent")!=-1 or metric.find("client")!=-1) else "bytes_rcvd" #ndpi_cat
+        else: 
+            metric = None
 
         for ip in ips:
 
@@ -232,10 +239,15 @@ def influxQuery1h(client1h, client5m, num_points, dim_vlset, measurements,interf
                 if(df.shape[0] >= num_points*p_rate and checkNotZero(df,df.shape[0])):
                     df = df.rename_axis('ds').reset_index()
                     df['ds'] = df['ds'].apply(convertDate)
-                    metric = measurements[measure]["metric"]
-                    metric = "bytes_sent" if (metric.find("sent")!=-1 or metric.find("client")!=-1) else "bytes_rcvd" #ndpi_cat
+
+                    host_key = ip['value']+"|"+ifid+"|"+measurements[measure]["name"]
+                    if not (host_key in hostPROPHET):                    
+                        hostPROPHET.update({host_key:HostProphet(ip['value'],measurements[measure]['name'],ifid)})
+                    
+                    hostProphet = hostPROPHET[host_key]
+                    
                     prophet(df, int(dim_vlset*(df.shape[0]/num_points)), '1H', 
-                        measurements[measure]["name"], ip['value'],ifid, client5m, categories, metric, influxNdpiCategoriesQuery,cf.showGraph) #start fitting and prediction
+                        hostProphet, client5m, categories, metric, influxNdpiCategoriesQuery,cf.showGraph) #start fitting and prediction
     
     queue.put(statsProphet)
     queue.close()

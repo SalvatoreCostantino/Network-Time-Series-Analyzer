@@ -7,11 +7,14 @@ import sys
 import config as cf
 from decorator import suppress_stdout_stderr
 
-anomalyHost = [] 
 statsProphet = {"general":{}, "host":{}}
 
-def AnomalyChecker(actual,predicted,t_type,host_mac,ifid,client,categories,metric,influxQuery):
+def AnomalyChecker(actual,predicted,hostProphet, client,categories,metric,influxQuery):
 
+    t_type = hostProphet.getMeasure()
+    host_mac = hostProphet.getIP()
+    ifid = hostProphet.getIFid()
+    
     if t_type in statsProphet["general"]:
         statsProphet["general"][t_type]['total']+=1
     else:
@@ -34,18 +37,14 @@ def AnomalyChecker(actual,predicted,t_type,host_mac,ifid,client,categories,metri
             statsProphet["general"][t_type]['anomalies']+=1
             statsProphet["host"][host_mac][t_type]['anomalies']+=1
 
-        if not (host_mac in anomalyHost and cf.verbose):
+        if not (hostProphet.isAnomalous() and cf.verbose):
             print("---> ANOMALY TYPE: %-22s HOST/MAC: %-30s IF: %-5s DATE: %-25s METHOD: %s\n"
                 % (t_type, host_mac,ifid,actual['ds'],"PROPHET"+checked),end='',flush=True)
-            anomalyHost.append(host_mac)
-    elif host_mac in anomalyHost and cf.verbose:
+            hostProphet.setAnomalous(True)
+    elif hostProphet.isAnomalous() and cf.verbose:
         print("<--- ANOMALY TYPE: %-22s HOST/MAC: %-30s IF: %-5s DATE: %-25s METHOD: PROPHET\n"
             % (t_type, host_mac,ifid,actual['ds']),end='',flush=True)
-        anomalyHost.remove(host_mac)
-
-def resetProphetAnomalies():
-    global anomalyHost
-    anomalyHost = []
+        hostProphet.setAnomalous(False)
 
 def isWeekendDay(ds):
     date = pd.to_datetime(ds)
@@ -60,7 +59,7 @@ def rmse(y_true, y_pred):
     return np.sqrt(np.mean((y_true - y_pred) ** 2))
 
 
-def prophet(df,dimVL,frequency,t_type, host_mac, ifid, client,categories,metric,influxQuery,showGraph=False):
+def prophet(df,dimVL,frequency, hostProphet, client, categories, metric, influxQuery, showGraph=False):
     df['weekend'] = df['ds'].apply(isWeekendDay)
     df['no_weekend'] = ~df['ds'].apply(isWeekendDay)
     df_training = df[:-(dimVL+cf.predictedPoint)]
@@ -74,8 +73,15 @@ def prophet(df,dimVL,frequency,t_type, host_mac, ifid, client,categories,metric,
                             '2019-12-24','2019-12-25','2019-12-26','2019-12-31'])
     })
 
-    fr, cp, ss = modelSelection(df_training, df_test, dimVL,italianHolidays2019,frequency)
-    fcst,m = fit_predict(df[:-cf.predictedPoint],italianHolidays2019,fr,cp,ss,cf.totPredPoint,frequency)
+    if (hostProphet.getTrend() == None or hostProphet.getTotalCheck() == cf.validationTime):
+        fr, cp, ss = modelSelection(df_training, df_test, dimVL,italianHolidays2019,frequency)
+        hostProphet.setTrend(cp)
+        hostProphet.setFourier(fr)
+        hostProphet.setSeasonality(ss)
+        hostProphet.resetTotalCheck()
+
+    fcst,m = fit_predict(df[:-cf.predictedPoint],italianHolidays2019,
+        hostProphet.getFourier(), hostProphet.getTrend(), hostProphet.getSeasonality() ,cf.totPredPoint,frequency)
 
     j=cf.predictedPoint
     i=cf.totPredPoint
@@ -84,7 +90,7 @@ def prophet(df,dimVL,frequency,t_type, host_mac, ifid, client,categories,metric,
     while i > 0 and j > 0:
         if(pd.to_datetime(df.iloc[-j]['ds']) == fcst.iloc[-i]['ds']):
             point.append(df.iloc[-j])
-            AnomalyChecker(df.iloc[-i], fcst.iloc[-i], t_type,host_mac,ifid,client,categories,metric,influxQuery)
+            AnomalyChecker(df.iloc[-i], fcst.iloc[-i], hostProphet, client,categories,metric,influxQuery)
             i-=1
             j-=1
         elif pd.to_datetime(df.iloc[-j]['ds']) > fcst.iloc[-i]['ds']:
@@ -96,7 +102,7 @@ def prophet(df,dimVL,frequency,t_type, host_mac, ifid, client,categories,metric,
         m.plot(fcst)
         plt.plot([pd.to_datetime(point[i]['ds']) for i in range(0,len(point))],
             [point[i]['y'] for i in range(0,len(point))],"ro-",ms=3)
-        plt.savefig(cf.graphDir+host_mac+"_"+t_type+".png")
+        plt.savefig(cf.graphDir+ hostProphet.getIP() +"_"+ hostProphet.getMeasure() +".png")
         plt.close()
 
 

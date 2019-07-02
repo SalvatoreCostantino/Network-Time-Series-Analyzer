@@ -19,12 +19,15 @@ predictedPoint = 4
 totPredPoint = predictedPoint * 3
 num_points1h = 504 + predictedPoint # about 3 weeks
 showGraph = True
-flooding_treshold = 1.15
+flooding_treshold = 1.10
 ratio_treshold = 0.85
 packet_size_treshold = 550
 maxLine = 6
 mitigation = False
 graphDir = "graph/"
+validationTime = 168
+limitRSI = 3500
+limitProphet = 40
 
 
 
@@ -103,12 +106,12 @@ measurements5m =        {"mac:arp_rqst_sent_rcvd_rpls" :
                         "host:DNS_traffic host:dns_qry_sent_rsp_rcvd host:dns_qry_rcvd_rsp_sent": 
                                 {"name":        "dns_infiltration", 
                                 "metrics":      [["bytes_rcvd"],["replies_ok_packets","replies_error_packets"],["queries_packets"]],
-                                "minValue":     [2000/300, 8/300]},
+                                "minValue":     [1500/300, 7/300]},
                         
                         "host:DNS_traffic  host:dns_qry_sent_rsp_rcvd host:dns_qry_rcvd_rsp_sent" : 
                                 {"name":        "dns_exfiltration", 
                                 "metrics":      [["bytes_sent"],["queries_packets"],["replies_ok_packets","replies_error_packets"]],
-                                "minValue":     [2000/300, 8/300]},
+                                "minValue":     [1500/300, 7/300]},
                         
                         "host:anomalous_flows host:total_flows" :
                                 {"name":        "anmls_flows_vct",
@@ -142,9 +145,5 @@ scoreTable = {  "net_scan_atk"          :0.10,
                 "flows_fldng_atk"       :0.30,
                 "bytes_fldng_vct"       :0.30,
                 "bytes_fldng_atk"       :0.30,
-                "cntc_fld_atk"          :0.30,
-                "cntc_fld_vct"          :0.30,
-                "act_flw_fld_atk"       :0.30,
-                "act_flw_fld_vct"       :0.30,
         }
 
