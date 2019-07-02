@@ -22,7 +22,7 @@ def parseArg():
         help="output file")
     parser.add_argument("-d", "--dir",
         help="graphs directory")
-    parser.add_argument("-t", "-time",
+    parser.add_argument("-t", "--time",
         help="analysis date")
     args = parser.parse_args()
     return args
