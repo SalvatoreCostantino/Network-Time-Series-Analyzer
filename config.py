@@ -4,7 +4,7 @@ num_points5m = 400 #33h
 p_rate = 0.65
 influxHost = 'localhost'
 influxPort = 8086
-start_time = "'2019-06-28T17:28:00Z'"
+start_time = None
 RSI_treshold = 85
 zeroKiller = 0.000000000000000000001
 interfaces=["0"]
@@ -106,12 +106,12 @@ measurements5m =        {"mac:arp_rqst_sent_rcvd_rpls" :
                         "host:DNS_traffic host:dns_qry_sent_rsp_rcvd host:dns_qry_rcvd_rsp_sent": 
                                 {"name":        "dns_infiltration", 
                                 "metrics":      [["bytes_rcvd"],["replies_ok_packets","replies_error_packets"],["queries_packets"]],
-                                "minValue":     [1500/300, 7/300]},
+                                "minValue":     [0, 8/300]},
                         
                         "host:DNS_traffic  host:dns_qry_sent_rsp_rcvd host:dns_qry_rcvd_rsp_sent" : 
                                 {"name":        "dns_exfiltration", 
                                 "metrics":      [["bytes_sent"],["queries_packets"],["replies_ok_packets","replies_error_packets"]],
-                                "minValue":     [1500/300, 7/300]},
+                                "minValue":     [0, 8/300]},
                         
                         "host:anomalous_flows host:total_flows" :
                                 {"name":        "anmls_flows_vct",

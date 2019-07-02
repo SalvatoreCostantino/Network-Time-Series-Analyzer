@@ -82,7 +82,7 @@ def initiaizeArgs(args):
         except IOError:
             print("error opening file: %s" % args.file)
     
-    if args.dir:
+    if args.dir and args.prophet:
         if os.path.isdir(args.dir):
             cf.graphDir = args.dir if args.dir[-1] == '/' else args.dir + '/'
         else:
@@ -90,6 +90,9 @@ def initiaizeArgs(args):
             createDir(cf.graphDir)
     else:
         createDir(cf.graphDir)
+    
+    if args.time:
+        cf.start_time = args.time
     
     cf.prophet_diagnostic = args.prophet
     cf.checkCat = args.cat

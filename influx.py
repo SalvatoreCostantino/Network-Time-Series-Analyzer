@@ -175,7 +175,7 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
 
                         elif measurements[measure]["name"].find("filtration")!=-1:
                             thVal = cf.packet_size_treshold
-                        
+
                         else:
                             thVal = cf.ratio_treshold
 
