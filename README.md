@@ -1,4 +1,4 @@
-# Network-Time-Series-Analyzer
+# Network Time Series Analyzer
 Hybrid anomaly-based intrusion detection system  
 
 DEPENDENCIES INSTALLATION  
