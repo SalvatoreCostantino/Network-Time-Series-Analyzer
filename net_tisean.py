@@ -81,23 +81,30 @@ def initiaizeArgs(args):
             sys.stdout = f
         except IOError:
             print("error opening file: %s" % args.file)
-    
-    if args.dir and args.prophet:
-        if os.path.isdir(args.dir):
-            cf.graphDir = args.dir if args.dir[-1] == '/' else args.dir + '/'
-        else:
-            print("directory not found: %s" % args.dir)
-            createDir(cf.graphDir)
-    else:
-        createDir(cf.graphDir)
-    
+
     if args.time:
         cf.start_time = args.time
     
     cf.prophet_diagnostic = args.prophet
-    cf.checkCat = args.cat
     
-
+    if cf.prophet_diagnostic:
+        
+        if args.dir:
+            if os.path.isdir(args.dir):
+                cf.graphDir = args.dir if args.dir[-1] == '/' else args.dir + '/'
+            else:
+                print("directory not found: %s" % args.dir)
+                createDir(cf.graphDir)
+        else:
+            createDir(cf.graphDir)
+        
+        cf.checkCat = args.cat
+        cf.showGraph = args.graph
+    
+    cf.verbose = args.verbose
+    cf.mitigation = args.xdp
+    
+    
 def main():
 
     args = parseArg()
