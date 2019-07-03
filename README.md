@@ -18,7 +18,7 @@ python3.6 -m pip install schedule
 **OTHER DEPENDENCIES**  
 
 influxdb >= 1.7.6  
-ntopng >= 3.9.190625
+ntopng >= 3.9.190625  
 BCC (https://github.com/iovisor/bcc/blob/master/INSTALL.md)  
 
 **USAGE**  
