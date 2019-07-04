@@ -8,26 +8,26 @@ start_time = None
 RSI_treshold = 85
 zeroKiller = 0.000000000000000000001
 interfaces=["0"]
-prophet_diagnostic = None
-verbose = None
+prophet_diagnostic = False
+verbose = False
 precision = 1000
 minuteProphet = ":02"
-checkCat = None
+checkCat = False
 device = "wlp2s0"
 hostTrailer = 4
 predictedPoint = 4
 totPredPoint = predictedPoint * 3
 num_points1h = 504 + predictedPoint # about 3 weeks
-showGraph = None
+showGraph = False
 flooding_treshold = 1.10
 ratio_treshold = 0.85
 packet_size_treshold = 550
 maxLine = 6
-mitigation = None
+mitigation = False
 graphDir = "graph/"
 validationTime = 168
-limitRSI = 3500
-limitProphet = 40
+limitRSI = 4000
+limitProphet = 45
 
 
 

@@ -28,5 +28,5 @@ python3.6 ./net_tisean.py [-h] [-c] [-p] [-g] [-v] [-x] [-f FILE] [-d DIR] [-t T
 
 <br/>**BASIC EXAMPLE** 
 
-python3.6 ./net_tisean.py -p -v -f results.txt -t '2019-06-28T17:28:00Z'
+python3.6 ./net_tisean.py -p -v -f results.txt -t 2019-06-28T17:28:00Z
 

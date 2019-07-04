@@ -72,7 +72,9 @@ def HostStats(stats,scoreTable,printAll):
                     if aType.find("atk")!=-1 or aType.find("exfiltration")!=-1:
                         sumAtkScore+=stats[host][meth][aType]['anomalies'] * scoreTable[aType]
                         
-                        if(stats[host][meth][aType]['anomalies']!=0 and meth == 'TRESHOLD' and host not in toBlock):
+                        if(stats[host][meth][aType]['anomalies']!=0 and (meth == 'TRESHOLD' or (meth == 'PROPHET' and cf.checkCat))  
+                            and host not in toBlock):
+                            
                             if(stats[host][meth]["type"] == "mac"):
                                 toBlock.append("mac"+host)
                             elif host.find(":")!=-1:

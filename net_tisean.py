@@ -83,7 +83,7 @@ def initiaizeArgs(args):
             print("error opening file: %s" % args.file)
 
     if args.time:
-        cf.start_time = args.time
+        cf.start_time = "'"+args.time+"'"
     
     cf.prophet_diagnostic = args.prophet
     
