@@ -19,7 +19,7 @@ def AnomalyChecker(actual,predicted,hostProphet, client,categories,metric,influx
     incGeneralStats(statsProphet, host_mac, t_type, "ip")
 
     checked=''
-    if abs(actual['y']-predicted['yhat']) > abs(predicted['yhat_upper']-predicted['yhat_lower']):
+    if actual['y'] > predicted['yhat_upper']:
         if cf.checkCat:
             if(influxQuery(client, actual['ds'], categories, ifid, host_mac, metric)>0):
                 checked='+NDPI'
@@ -28,12 +28,18 @@ def AnomalyChecker(actual,predicted,hostProphet, client,categories,metric,influx
             statsProphet["host"][host_mac][t_type]['anomalies']+=1
 
         if not (hostProphet.isAnomalous() and cf.verbose):
-            print("---> ANOMALY TYPE: %-22s HOST/MAC: %-30s IF: %-5s DATE: %-25s METHOD: %s\n"
-                % (t_type, host_mac,ifid,actual['ds'],"PROPHET"+checked),end='',flush=True)
+            print("%-8s %-18s %-25s %-5s %-25s %-16s\n"
+                % ("START",t_type, host_mac, ifid, actual['ds'],"PROPHET"+checked),end='',flush=True)
             hostProphet.setAnomalous(True)
     elif hostProphet.isAnomalous() and cf.verbose:
-        print("<--- ANOMALY TYPE: %-22s HOST/MAC: %-30s IF: %-5s DATE: %-25s METHOD: PROPHET\n"
-            % (t_type, host_mac,ifid,actual['ds']),end='',flush=True)
+        
+        if cf.checkCat:
+            meth = "PROPHET+NDPI"
+        else:
+            meth = "PROPHET"
+        
+        print("%-8s %-18s %-25s %-5s %-25s %-16s\n"
+            % ("END",t_type, host_mac,ifid,actual['ds'],meth),end='',flush=True)
         hostProphet.setAnomalous(False)
 
 def isWeekendDay(ds):

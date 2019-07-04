@@ -109,9 +109,12 @@ def main():
 
     args = parseArg()
 
+    initiaizeArgs(args)
+
     print("net_tisean (network time series analyzer) v1.0 started")
 
-    initiaizeArgs(args)
+    print("%-8s %-18s %-25s %-5s %-25s %-16s %s\n"
+        % ("TYPE", "ANOMALY", "HOST/MAC", "IF", "DATE", "METHOD","VAL"),end = '',flush = True)
     
     client1h = DataFrameClient(host=cf.influxHost, port=cf.influxPort)
     client5m =  InfluxDBClient(host=cf.influxHost, port=cf.influxPort)

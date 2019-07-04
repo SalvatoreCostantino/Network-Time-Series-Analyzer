@@ -19,15 +19,15 @@ class RSI():
 
         if (rsiValue > cf.RSI_treshold):
             if(not self.__isPrinted and cf.verbose):
-                print("---> ANOMALY TYPE: %-22s HOST/MAC: %-30s IF: %-5s DATE: %-25s METHOD: RSI %.1f\n"
-                    % (self.__p_type,self.__host,self.__interface,date,RSI),end = '',flush = True)
+                print("%-8s %-18s %-25s %-5s %-25s %-16s %.1f\n"
+                    % ("START",self.__p_type,self.__host,self.__interface,date,"RSI",RSI),end = '',flush = True)
                 self.__isPrinted = True
             statsRSI["general"][self.__p_type]['anomalies']+=1
             statsRSI["host"][self.__host][self.__p_type]['anomalies']+=1
             
         elif (self.__isPrinted and cf.verbose):
-            print("<--- ANOMALY TYPE: %-22s HOST/MAC: %-30s IF: %-5s DATE: %-25s METHOD: RSI\n"
-                % (self.__p_type,self.__host,self.__interface,date),end = '',flush = True)
+            print("%-8s %-18s %-25s %-5s %-25s %-16s\n"
+                % ("END",self.__p_type,self.__host,self.__interface,date,"RSI"),end = '',flush = True)
             self.__isPrinted = False
 
     def __checkDivisionByZero(self,numerator, denumerator):
