@@ -1,21 +1,12 @@
 import config as cf
+from utils import incGeneralStats
 
 anomalyHost = [] 
 
 def checkTreshold (actual, a_type, host, ifid, stats, date, host_type, th_val):
-    if a_type in stats["general"]:
-        stats["general"][a_type]['total']+=1
-    else:
-        stats["general"].update({a_type:{"total": 1, "anomalies" : 0}})
     
-    if host in stats["host"]:
-        if a_type in stats["host"][host]:
-            stats["host"][host][a_type]['total']+=1
-        else:
-            stats["host"][host].update({a_type:{"total": 1, "anomalies" : 0}})
-    else:
-        stats["host"].update({host:{a_type:{"total": 1, "anomalies" : 0},"type":host_type}})
-    
+    incGeneralStats(stats, host, a_type, host_type)
+
     hostKey = host+'|'+ifid+'|'+a_type
     if(actual >= th_val):
         if(not (hostKey in anomalyHost) and cf.verbose):

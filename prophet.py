@@ -6,6 +6,7 @@ import numpy as np
 import sys
 import config as cf
 from decorator import suppress_stdout_stderr
+from utils import incGeneralStats
 
 statsProphet = {"general":{}, "host":{}}
 
@@ -15,18 +16,7 @@ def AnomalyChecker(actual,predicted,hostProphet, client,categories,metric,influx
     host_mac = hostProphet.getIP()
     ifid = hostProphet.getIFid()
     
-    if t_type in statsProphet["general"]:
-        statsProphet["general"][t_type]['total']+=1
-    else:
-        statsProphet["general"].update({t_type:{"total": 1, "anomalies" : 0}})
-
-    if host_mac in statsProphet["host"]:
-        if t_type in statsProphet["host"][host_mac]:
-            statsProphet["host"][host_mac][t_type]['total']+=1
-        else:
-            statsProphet["host"][host_mac].update({t_type:{"total": 1, "anomalies" : 0}})
-    else:
-        statsProphet["host"].update({host_mac:{t_type:{"total": 1, "anomalies" : 0},"type":"ip"}})    
+    incGeneralStats(statsProphet, host_mac, t_type, "ip")
 
     checked=''
     if abs(actual['y']-predicted['yhat']) > abs(predicted['yhat_upper']-predicted['yhat_lower']):

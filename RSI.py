@@ -1,5 +1,6 @@
 import sys
 import config as cf
+from utils import incGeneralStats
 
 class RSI():
 
@@ -14,18 +15,7 @@ class RSI():
 
     def __checkAnomaly(self,rsiValue,date,statsRSI,RSI):
 
-        if self.__p_type in statsRSI["general"]:
-            statsRSI["general"][self.__p_type]['total']+=1
-        else:
-            statsRSI["general"].update({self.__p_type:{"total": 1, "anomalies" : 0}})
-
-        if self.__host in statsRSI["host"]:
-            if self.__p_type in statsRSI["host"][self.__host]:
-                statsRSI["host"][self.__host][self.__p_type]['total']+=1
-            else:
-                statsRSI["host"][self.__host].update({self.__p_type:{"total": 1, "anomalies" : 0}})
-        else:
-            statsRSI["host"].update({self.__host:{self.__p_type:{"total": 1, "anomalies" : 0},"type":self.__a_type}})
+        incGeneralStats(statsRSI, self.__host, self.__p_type, self.__a_type)
 
         if (rsiValue > cf.RSI_treshold):
             if(not self.__isPrinted and cf.verbose):

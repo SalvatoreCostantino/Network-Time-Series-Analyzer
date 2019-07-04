@@ -2,6 +2,22 @@ from math import sqrt
 import config as cf
 import os
 
+def incGeneralStats(stats, host, anomaly_type, host_type):
+    
+    if anomaly_type in stats["general"]:
+            stats["general"][anomaly_type]['total']+=1
+    else:
+        stats["general"].update({anomaly_type:{"total": 1, "anomalies" : 0}})
+
+    if host in stats["host"]:
+        if anomaly_type in stats["host"][host]:
+            stats["host"][host][anomaly_type]['total']+=1
+        else:
+            stats["host"][host].update({anomaly_type:{"total": 1, "anomalies" : 0}})
+    else:
+        stats["host"].update({host:{anomaly_type:{"total": 1, "anomalies" : 0},"type":host_type}})
+
+
 def updateGeneralStats(currStats,cumStats,method):
     for a_type in currStats:
         if a_type in cumStats[method]:
