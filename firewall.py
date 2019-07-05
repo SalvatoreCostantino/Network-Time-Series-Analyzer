@@ -103,11 +103,11 @@ static inline int checkMac(uint64_t* mac){
 }
 
 int xdp_prog1(struct CTXTYPE *ctx) {
+    int rc = RETURNCODE;
     void* data_end = (void*)(long)ctx->data_end;
     void* data = (void*)(long)ctx->data;
 
     struct ethhdr *eth = data;
-    int rc = RETURNCODE;
     uint16_t h_proto;
     uint64_t nh_off = 0;
     nh_off = sizeof(*eth);
