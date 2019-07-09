@@ -5,7 +5,7 @@ p_rate = 0.65
 influxHost = 'localhost'
 influxPort = 8086
 start_time = None
-RSI_treshold = 85
+RSI_treshold = 80
 zeroKiller = 0.000000000000000000001
 interfaces=["0"]
 prophet_diagnostic = False
@@ -25,9 +25,9 @@ packet_size_treshold = 550
 maxLine = 6
 mitigation = False
 graphDir = "graph/"
-validationTime = 168
+validationTime = 2 * dim_vlset
 limitRSI = 4000
-limitProphet = 45
+limitProphet = 40
 
 
 

@@ -29,7 +29,7 @@ def signal_handler(signal, frame):
 
 
 def startRSI(client5m,printAll,cumulative_stat):
-    influxQuery5m(client5m,cf.num_points5m,cf.period+1,cf.measurements5m,cf.interfaces,cf.start_time)
+    influxQuery5m(client5m,cf.num_points5m,cf.period+1,cf.measurements5m,cf.interfaces)
     updateAllHostStats(startRSI, statsTreshold, cumulative_stat)
     addresses = HostStats(cumulative_stat["host"],cf.scoreTable,printAll)
     if cf.mitigation:
@@ -109,9 +109,9 @@ def main():
 
     args = parseArg()
 
-    initiaizeArgs(args)
-
     print("net_tisean (network time series analyzer) v1.0 started")
+
+    initiaizeArgs(args)
 
     print("%-8s %-18s %-25s %-5s %-25s %-16s %s\n"
         % ("TYPE", "ANOMALY", "HOST/MAC", "IF", "DATE", "METHOD","VAL"),end = '',flush = True)

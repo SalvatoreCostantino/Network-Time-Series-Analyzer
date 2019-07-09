@@ -70,7 +70,8 @@ def prophet(df,dimVL,frequency, hostProphet, client, categories, metric, influxQ
     })
 
     if (hostProphet.getTrend() == None or hostProphet.getTotalCheck() == cf.validationTime):
-        fr, cp, ss = modelSelection(df_training, df_test, dimVL,italianHolidays2019,frequency)
+        fr, cp, ss = modelSelection(df_training, df_test, min(2*dimVL,cf.dim_vlset),
+            dimVL,italianHolidays2019,frequency)
         hostProphet.setTrend(cp)
         hostProphet.setFourier(fr)
         hostProphet.setSeasonality(ss)
@@ -103,7 +104,7 @@ def prophet(df,dimVL,frequency, hostProphet, client, categories, metric, influxQ
 
 
 
-def modelSelection(df_training, df_test,dimTest,holiday,frequency):
+def modelSelection(df_training, df_test,dimTotTest,dimTest, holiday,frequency):
     fr_hpar = [(7,13)]
     cp_hpar = [0.05, 0.2]
     ss_hpar = [10, 25]
@@ -113,12 +114,32 @@ def modelSelection(df_training, df_test,dimTest,holiday,frequency):
         for j in range (len(cp_hpar)):
             for k in range (len(ss_hpar)):
                 fcst,_ = fit_predict(df_training,holiday,fr_hpar[i],cp_hpar[j],ss_hpar[k],dimTest,frequency)
-                rmse_val = rmse(df_test['y'],fcst['yhat'][-dimTest:])
+                test, pred = checkDate(df_test,fcst[-dimTotTest:],dimTotTest, dimTest)
+                rmse_val = rmse(test, pred)
                 if (rmse_val < b_rmse):
                     b_hpar = [i,j,k]
                     b_rmse = rmse_val
   
     return fr_hpar[b_hpar[0]], cp_hpar[b_hpar[1]], ss_hpar[b_hpar[2]]
+
+def checkDate(df_test, df_fc, dimTotTest, dimTest):
+    j = dimTest
+    i = dimTotTest
+    test = []
+    pred = []
+
+    while i > 0 and j > 0:
+        if(pd.to_datetime(df_test.iloc[-j]['ds']) == df_fc.iloc[-i]['ds']):
+            test.append(df_test.iloc[-j]['y'])
+            pred.append(df_fc.iloc[-i]['yhat'])
+            i-=1
+            j-=1
+        elif pd.to_datetime(df_test.iloc[-j]['ds']) > df_fc.iloc[-i]['ds']:
+            i-=1
+        else:
+            j-=1
+     
+    return (test,pred)
 
 
 def fit_predict(df_training, holiday, fr, cp, ss, dimPred, frequency):
