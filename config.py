@@ -26,8 +26,8 @@ maxLine = 6
 mitigation = False
 graphDir = "graph/"
 validationTime = 2 * dim_vlset
-limitRSI = 500
-limitProphet = 50
+limitRSI = 8000
+limitProphet = 45
 prophet_mul = 2
 
 
