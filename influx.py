@@ -169,11 +169,10 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
                     if (sum_denumerator >= (cf.zeroKiller + measurements[measure]["minValue"][1])  or 
                         sum_numerator >= (cf.zeroKiller + measurements[measure]["minValue"][0])):
                         
-                        if (measurements[measure]["name"].find("flooding")!=-1 or
-                        measurements[measure]["name"].find("net")!=-1):
+                        if measurements[measure]["name"].find("packets")!=-1:
                             thVal = cf.flooding_treshold
 
-                        elif measurements[measure]["name"].find("filtration")!=-1:
+                        elif measurements[measure]["name"].find("size")!=-1:
                             thVal = cf.packet_size_treshold
 
                         else:
@@ -240,9 +239,9 @@ def influxQuery1h(client1h, client5m, num_points, dim_vlset, measurements,interf
                     df = df.rename_axis('ds').reset_index()
                     df['ds'] = df['ds'].apply(convertDate)
 
-                    host_key = ip['value']+"|"+ifid+"|"+measurements[measure]["name"]
+                    host_key = ip['value']+"|"+ifid+"|"+measurements[measure]["metric"]
                     if not (host_key in hostPROPHET):                    
-                        hostPROPHET.update({host_key:HostProphet(ip['value'],measurements[measure]['name'],ifid)})
+                        hostPROPHET.update({host_key:HostProphet(ip['value'],measurements[measure]['metric'],ifid)})
                     
                     hostProphet = hostPROPHET[host_key]
                     

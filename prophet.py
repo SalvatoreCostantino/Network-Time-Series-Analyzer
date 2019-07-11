@@ -19,7 +19,7 @@ def AnomalyChecker(actual,predicted,hostProphet, client,categories,metric,influx
     incGeneralStats(statsProphet, host_mac, t_type, "ip")
 
     checked=''
-    if actual['y'] > predicted['yhat_upper']:
+    if actual['y'] > predicted['yhat_upper'] or actual['y'] < predicted['yhat_lower']:
         if cf.checkCat:
             if(influxQuery(client, actual['ds'], categories, ifid, host_mac, metric)>0):
                 checked='+NDPI'
@@ -87,7 +87,7 @@ def prophet(df,dimVL,frequency, hostProphet, client, categories, metric, influxQ
     while i > 0 and j > 0:
         if(pd.to_datetime(df.iloc[-j]['ds']) == fcst.iloc[-i]['ds']):
             point.append(df.iloc[-j])
-            AnomalyChecker(df.iloc[-i], fcst.iloc[-i], hostProphet, client,categories,metric,influxQuery)
+            AnomalyChecker(df.iloc[-j], fcst.iloc[-i], hostProphet, client,categories,metric,influxQuery)
             i-=1
             j-=1
         elif pd.to_datetime(df.iloc[-j]['ds']) > fcst.iloc[-i]['ds']:
@@ -144,7 +144,7 @@ def checkDate(df_test, df_fc, dimTotTest, dimTest):
 
 def fit_predict(df_training, holiday, fr, cp, ss, dimPred, frequency):
     
-    m = Prophet(holidays=holiday, interval_width=0.90, yearly_seasonality=False, weekly_seasonality=fr[1], 
+    m = Prophet(holidays=holiday, interval_width=0.99, yearly_seasonality=False, weekly_seasonality=fr[1], 
         daily_seasonality=False, changepoint_prior_scale=cp, holidays_prior_scale=15, 
         seasonality_prior_scale=ss, seasonality_mode='multiplicative')
     m.add_seasonality(name='work_days', period=1, fourier_order=fr[0], condition_name='no_weekend')

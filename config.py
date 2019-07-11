@@ -26,45 +26,42 @@ maxLine = 6
 mitigation = False
 graphDir = "graph/"
 validationTime = 2 * dim_vlset
-limitRSI = 4000
-limitProphet = 40
+limitRSI = 500
+limitProphet = 50
+prophet_mul = 2
 
 
 
 measurements1h =        {"P0":
                                 {"host:traffic" : 
-                                        {"name":       "bytes_fldng_atk", 
-                                        "metric":      "bytes_sent"},
+                                        {"metric":      "bytes_sent"},
                         
                                 "host:traffic ":
-                                        {"name":       "bytes_fldng_vct",
-                                        "metric":      "bytes_rcvd"}
+                                        {"metric":      "bytes_rcvd"}
                                 
                                 },
                         "P1": 
                                 {"host:total_flows": 
-                                        {"name":       "flows_fldng_atk", 
-                                        "metric":      "flows_as_client"},
+                                        {"metric":      "flows_as_client"},
                         
                                 "host:total_flows ":
-                                        {"name":       "flows_fldng_vct", 
-                                        "metric":      "flows_as_server"}
+                                        {"metric":      "flows_as_server"}
                                 }
                         }
                         
 
 measurements5m =        {"mac:arp_rqst_sent_rcvd_rpls" : 
-                                {"name":        "net_scan_atk", 
+                                {"name":        "arp_packets", 
                                 "metrics":      [["request_packets_sent"], ["reply_packets_rcvd"]],
                                 "minValue":     [2/300, 2/300]},
                     
                         "host:echo_reply_packets host:echo_packets" :
-                                {"name":        "ping_flooding", 
+                                {"name":        "ping_packets", 
                                 "metrics":      [["packets_rcvd"], ['packets_sent']],
                                 "minValue":     [8/300, 8/300]},
                     
                         "host:dns_qry_sent_rsp_rcvd": 
-                                {"name":        "dns_flooding", 
+                                {"name":        "dns_packets", 
                                 "metrics":      [["replies_ok_packets","replies_error_packets"], ["queries_packets"]],
                                 "minValue":     [8/300, 8/300]},
                     
@@ -74,22 +71,22 @@ measurements5m =        {"mac:arp_rqst_sent_rcvd_rpls" :
                                 "minValue":     [8/300, 8/300]},
                     
                         "host:unreachable_flows host:total_flows": 
-                                {"name":        "port_scan_atk", 
+                                {"name":        "port_unreach_srv", 
                                 "metrics":      [["flows_as_server"], ["flows_as_client"]],
                                 "minValue":     [2/300, 12/300]},
                     
                         "host:unreachable_flows  host:total_flows": 
-                                {"name":        "port_scan_vct", 
+                                {"name":        "port_unreach_clt", 
                                 "metrics":      [["flows_as_client"], ["flows_as_server"]],
                                 "minValue":     [2/300, 12/300]},
                     
                         "host:host_unreachable_flows host:total_flows": 
-                                {"name":        "ip_probing_vct", 
+                                {"name":        "host_unreach_clt", 
                                 "metrics":      [["flows_as_client"], ["flows_as_server"]],
                                 "minValue":     [2/300, 12/300]},
                     
                         "host:host_unreachable_flows  host:total_flows": 
-                                {"name":        "ip_probing_atk", 
+                                {"name":        "host_unreach_srv", 
                                 "metrics":      [["flows_as_server"], ["flows_as_client"]],
                                 "minValue":     [2/300, 12/300]},
                     
@@ -104,22 +101,22 @@ measurements5m =        {"mac:arp_rqst_sent_rcvd_rpls" :
                                 "minValue":     [15/300, 45/300]},
                         
                         "host:DNS_traffic host:dns_qry_sent_rsp_rcvd host:dns_qry_rcvd_rsp_sent": 
-                                {"name":        "dns_infiltration", 
+                                {"name":        "dns_size_srv", 
                                 "metrics":      [["bytes_rcvd"],["replies_ok_packets","replies_error_packets"],["queries_packets"]],
                                 "minValue":     [0, 8/300]},
                         
                         "host:DNS_traffic  host:dns_qry_sent_rsp_rcvd host:dns_qry_rcvd_rsp_sent" : 
-                                {"name":        "dns_exfiltration", 
+                                {"name":        "dns_size_clt", 
                                 "metrics":      [["bytes_sent"],["queries_packets"],["replies_ok_packets","replies_error_packets"]],
                                 "minValue":     [0, 8/300]},
                         
                         "host:anomalous_flows host:total_flows" :
-                                {"name":        "anmls_flows_vct",
+                                {"name":        "anmls_flows_srv",
                                 "metrics":      [["flows_as_server"],["flows_as_server"]],
                                 "minValue":     [3/300, 12/300]},
 
                         "host:anomalous_flows  host:total_flows" :
-                                {"name":        "anmls_flows_atk",
+                                {"name":        "anmls_flows_clt",
                                 "metrics":      [["flows_as_client"],["flows_as_client"]],
                                 "minValue":     [3/300, 3/300]},
                         }
@@ -127,23 +124,23 @@ measurements5m =        {"mac:arp_rqst_sent_rcvd_rpls" :
 
 categories = ["RemoteAccess", "Unspecified", "Mining", "Malware"]
 
-scoreTable = {  "net_scan_atk"          :0.10,
-                "ping_flooding"         :0.25,
-                "dns_flooding"          :0.25,
+scoreTable = {  "arp_packets"           :0.10,
+                "ping_packets"          :0.25,
+                "dns_packets"           :0.25,
                 "dns_errors"            :0.10,
-                "port_scan_atk"         :0.25,
-                "port_scan_vct"         :0.25,
-                "ip_probing_vct"        :0.25,
-                "ip_probing_atk"        :0.25,
+                "port_unreach_clt"      :0.25,
+                "port_unreach_srv"      :0.25,
+                "host_unreach_clt"      :0.25,
+                "host_unreach_srv"      :0.25,
                 "TCP_client_iss"        :0.05,
                 "TCP_server_iss"        :0.05,
-                "dns_infiltration"      :0.20,
-                "dns_exfiltration"      :0.20,
-                "anmls_flows_atk"       :0.25,
-                "anmls_flows_vct"       :0.25,
-                "flows_fldng_vct"       :0.30,
-                "flows_fldng_atk"       :0.30,
-                "bytes_fldng_vct"       :0.30,
-                "bytes_fldng_atk"       :0.30,
+                "dns_size_clt"          :0.20,
+                "dns_size_srv"          :0.20,
+                "anmls_flows_clt"       :0.25,
+                "anmls_flows_srv"       :0.25,
+                "flows_as_client"       :0.30,
+                "flows_as_server"       :0.30,
+                "bytes_sent"            :0.30,
+                "bytes_rcvd"            :0.30,
         }
 

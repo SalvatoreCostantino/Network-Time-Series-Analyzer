@@ -85,7 +85,7 @@ def HostStats(stats,scoreTable,printAll):
                     if type(stats[host][meth][aType]) is str:
                         continue
                     sumScore += stats[host][meth][aType]['anomalies'] * scoreTable[aType]
-                    if aType.find("atk")!=-1 or aType.find("exfiltration")!=-1:
+                    if aType.find("clt")!=-1 or aType.find("unreach_srv"):
                         sumAtkScore+=stats[host][meth][aType]['anomalies'] * scoreTable[aType]
                         
                         if(stats[host][meth][aType]['anomalies']!=0 and (meth == 'TRESHOLD' or (meth == 'PROPHET' and cf.checkCat))  

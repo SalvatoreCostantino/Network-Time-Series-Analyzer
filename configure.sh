@@ -4,7 +4,7 @@ influx -database "ntopng" -execute 'drop measurement "host:DNS_traffic"'
 influx -execute "SELECT * INTO ntopng.autogen.\"host:DNS_traffic\" FROM ntopng.autogen.\"host:ndpi\" WHERE protocol='DNS' GROUP BY *"
 influx -database "ntopng" -execute 'drop measurement "host:p2p"' 
 influx -execute "SELECT * INTO ntopng.autogen.\"host:p2p\" FROM ntopng.autogen.\"host:ndpi\" WHERE \
-	protocol='Bittorrent' or \
+	protocol='BitTorrent' or \
 	protocol='Gnutella' or \
 	protocol='Thunder' or \
 	protocol='Stealthnet' or \
