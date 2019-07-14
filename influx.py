@@ -206,6 +206,8 @@ def influxQuery1h(client1h, client5m, num_points, dim_vlset, measurements,interf
                     p_rate = 0.75,start_time=None):
     
     signal.signal(signal.SIGINT, signal.SIG_IGN)
+    #counter = 0
+    #sum_time = 0
     start_time = start_time if start_time!=None else "now()"
     w_clause = start_time + "-" + str((num_points-1)) + "h AND time < "+start_time
 
@@ -244,11 +246,16 @@ def influxQuery1h(client1h, client5m, num_points, dim_vlset, measurements,interf
                         hostPROPHET.update({host_key:HostProphet(ip['value'],measurements[measure]['metric'],ifid)})
                     
                     hostProphet = hostPROPHET[host_key]
+
+                    #start = time.time()    
                     
                     prophet(df, int(dim_vlset*(df.shape[0]/num_points)), '1H', 
                         hostProphet, client5m, categories, metric, influxNdpiCategoriesQuery,cf.showGraph) #start fitting and prediction
-    
-    queue.put(statsProphet)
+                    #counter +=1
+                    #sum_time += (time.time() - start)
+
+    #mean_time = (sum_time / counter) if counter != 0 else 0
+    queue.put((None, statsProphet))
     queue.close()
 
 

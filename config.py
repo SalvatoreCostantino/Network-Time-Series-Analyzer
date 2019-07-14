@@ -1,7 +1,7 @@
 dim_vlset  = 168 #1 week
 period = 50 #4h 
 num_points5m = 400 #33h
-p_rate = 0.65
+p_rate = 0.70
 influxHost = 'localhost'
 influxPort = 8086
 start_time = None
@@ -19,9 +19,9 @@ predictedPoint = 4
 totPredPoint = predictedPoint * 3
 num_points1h = 504 + predictedPoint # about 3 weeks
 showGraph = False
-flooding_treshold = 1.10
-ratio_treshold = 0.80
-packet_size_treshold = 550
+flooding_treshold = 1
+ratio_treshold = 0.50
+packet_size_treshold = 576
 maxLine = 6
 mitigation = False
 graphDir = "graph/"
@@ -67,7 +67,7 @@ measurements5m =        {"mac:arp_rqst_sent_rcvd_rpls" :
                     
                         "host:dns_qry_sent_rsp_rcvd ": 
                                 { "name":       "dns_errors", 
-                                "metrics":      [["replies_error_packets"],["replies_ok_packets"]],
+                                "metrics":      [["replies_error_packets"],["replies_ok_packets","replies_error_packets"]],
                                 "minValue":     [8/300, 8/300]},
                     
                         "host:unreachable_flows host:total_flows": 

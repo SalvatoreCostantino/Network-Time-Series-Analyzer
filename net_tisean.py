@@ -151,10 +151,15 @@ def main():
         
         influxQuery5m(client5m,cf.num_points5m,cf.period+1,cf.measurements5m,cf.interfaces,cf.start_time)
 
+        #cum_time = 0
+        #counter = 0
         if(cf.prophet_diagnostic):
             for _ in range(2):
-                sts = q.get()
+                _, sts = q.get()
                 mergeStats(sts,cumulative_stat,"PROPHET")
+                #if time != 0:
+                    #cum_time += time
+                    #counter +=1
         
         updateAllHostStats(statsRSI, statsTreshold, cumulative_stat)
 
@@ -165,6 +170,8 @@ def main():
     updateAllGeneralStats(statsRSI, statsTreshold, cumulative_stat)
 
     printGeneralStats(cumulative_stat["general"])
+    #if counter != 0:
+        #print(cum_time / counter)
     
     if cf.mitigation:
         signal.signal(signal.SIGINT,original_sgint_handler)

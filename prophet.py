@@ -8,6 +8,7 @@ import config as cf
 from decorator import suppress_stdout_stderr
 from utils import incGeneralStats
 
+pd.options.mode.chained_assignment = None
 statsProphet = {"general":{}, "host":{}}
 
 def AnomalyChecker(actual,predicted,hostProphet, client,categories,metric,influxQuery):
@@ -54,12 +55,15 @@ def rmse(y_true, y_pred):
     y_true, y_pred = np.array(y_true), np.array(y_pred)
     return np.sqrt(np.mean((y_true - y_pred) ** 2))
 
+def dateConverter(ds):
+    return pd.to_datetime(ds)
 
 def prophet(df,dimVL,frequency, hostProphet, client, categories, metric, influxQuery, showGraph=False):
     df['weekend'] = df['ds'].apply(isWeekendDay)
     df['no_weekend'] = ~df['ds'].apply(isWeekendDay)
     df_training = df[:-(dimVL+cf.predictedPoint)]
     df_test = df[-(dimVL+cf.predictedPoint):-cf.predictedPoint]
+    df_test['ds'] = df_test['ds'].apply(dateConverter)
   
     italianHolidays2019 = pd.DataFrame({
         'holiday': 'italianHolidays2019',
@@ -103,7 +107,6 @@ def prophet(df,dimVL,frequency, hostProphet, client, categories, metric, influxQ
         plt.close()
 
 
-
 def modelSelection(df_training, df_test,dimTotTest,dimTest, holiday,frequency):
     fr_hpar = [(7,13)]
     cp_hpar = [0.05, 0.2]
@@ -129,7 +132,7 @@ def checkDate(df_test, df_fc, dimTotTest, dimTest):
     pred = []
 
     while i > 0 and j > 0:
-        if(pd.to_datetime(df_test.iloc[-j]['ds']) == df_fc.iloc[-i]['ds']):
+        if(df_test.iloc[-j]['ds'] == df_fc.iloc[-i]['ds']):
             test.append(df_test.iloc[-j]['y'])
             pred.append(df_fc.iloc[-i]['yhat'])
             i-=1
