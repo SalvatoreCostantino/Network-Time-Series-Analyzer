@@ -30,7 +30,7 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
             denumerator=numerator
 
     
-        key=numerator.split(':')[0]
+        key = numerator.split(':')[0]
         hosts = client.query('SHOW TAG VALUES ON "ntopng" FROM "autogen"."%s" WITH KEY = "%s" LIMIT %s'
             % (numerator,key,str(cf.limitRSI)))
         
@@ -77,12 +77,12 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
                 host_interface_measure = ip['value']+"|"+ifid+"|"+measurements[measure]["name"]
 
                 if(start_time == "now()" and host_interface_measure in hostRSI):
-                    w_clause = start_time + "-5m"
+                    w_clause = start_time + " - 5m"
                     min_points = 1
                 else:
                     if(start_time == "now()"):
                         max_points=2*min_points
-                    w_clause = start_time + "-" + str((max_points-1)*5) + "m AND time < "+start_time
+                    w_clause = start_time + " - " + str((max_points-1)*5) + "m AND time < "+start_time
                 
                 results = client.query("""  SELECT %s 
                                             FROM %s 
@@ -96,14 +96,20 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
                     d_points = n_points
                 else:
                     d_points = list(results.get_points(measurement = denumerator))
-                    if denumerator2!=None:
+                    if denumerator2 != None:
                         d2_points = list(results.get_points(measurement = denumerator2))
-                
+                        if len(d_points) == 0:
+                            d_points = d2_points
+                            m_denumerator = []
+                        elif len(d2_points) == 0:
+                            d2_points = d_points
+                            m_denumerator2 = []
+
                 dim_numerator = len(n_points)
                 dim_denumerator = len(d_points)
                 dim_denumerator2 = len(d2_points) if denumerator2 != None else dim_numerator
-                
-                if(min(dim_numerator,dim_denumerator,dim_denumerator2)<min_points):
+
+                if(min(dim_numerator,dim_denumerator,dim_denumerator2) < min_points):
                     continue
 
                 if(dim_numerator != dim_denumerator):
@@ -111,13 +117,16 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
                         d_points = d_points[-dim_numerator:]
                     else:
                         n_points=n_points[-dim_denumerator:]
-                
+
+                #by reference changes                
+                dim_denumerator2 = len(d2_points) if denumerator2 != None else dim_denumerator
+
                 if(dim_denumerator2 != dim_denumerator and denumerator2 != None):
                     if dim_denumerator2 > dim_denumerator:
                         d2_points = d2_points[-dim_denumerator:]
                     else:
-                        n_points=n_points[-dim_denumerator2:]
-                        d_points=d_points[-dim_denumerator2:]
+                        n_points = n_points[-dim_denumerator2:]
+                        d_points = d_points[-dim_denumerator2:]
                 
                 p2p_metric=''
                 if(numerator.find("unreachable")!=-1):
@@ -142,7 +151,7 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
                 series=[]
                 seriesDate=[]
                 for i in range(len(n_points)):
-                    sum_numerator = cf.zeroKiller
+                    sum_numerator = 0
                     sum_denumerator = cf.zeroKiller
 
                     if(n_points[i]['time'] != d_points[i]['time']):
@@ -164,10 +173,10 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
                         for x in m_denumerator2:
                             sum_denumerator += d2_points[i][x]
                     except TypeError: #portability
-                        continue
+                        continue 
 
                     if (sum_denumerator >= (cf.zeroKiller + measurements[measure]["minValue"][1])  or 
-                        sum_numerator >= (cf.zeroKiller + measurements[measure]["minValue"][0])):
+                        sum_numerator >= measurements[measure]["minValue"][0]):
                         
                         if measurements[measure]["name"].find("packets")!=-1:
                             thVal = cf.flooding_treshold
@@ -209,7 +218,7 @@ def influxQuery1h(client1h, client5m, num_points, dim_vlset, measurements,interf
     #counter = 0
     #sum_time = 0
     start_time = start_time if start_time!=None else "now()"
-    w_clause = start_time + "-" + str((num_points-1)) + "h AND time < "+start_time
+    w_clause = start_time + " - " + str((num_points-1)) + "h AND time < "+start_time
 
     for measure in measurements:
         hosts = client1h.query('SHOW TAG VALUES ON "ntopng" FROM "1h"."%s" WITH KEY = "host" LIMIT %s' 

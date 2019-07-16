@@ -28,7 +28,7 @@ graphDir = "graph/"
 validationTime = 2 * dim_vlset
 limitRSI = 8000
 limitProphet = 45
-prophet_mul = 2
+
 
 
 
@@ -68,7 +68,7 @@ measurements5m =        {"mac:arp_rqst_sent_rcvd_rpls" :
                         "host:dns_qry_sent_rsp_rcvd ": 
                                 { "name":       "dns_errors", 
                                 "metrics":      [["replies_error_packets"],["replies_ok_packets","replies_error_packets"]],
-                                "minValue":     [8/300, 8/300]},
+                                "minValue":     [6/300, 8/300]},
                     
                         "host:unreachable_flows host:total_flows": 
                                 {"name":        "port_unreach_srv", 
@@ -103,12 +103,12 @@ measurements5m =        {"mac:arp_rqst_sent_rcvd_rpls" :
                         "host:DNS_traffic host:dns_qry_sent_rsp_rcvd host:dns_qry_rcvd_rsp_sent": 
                                 {"name":        "dns_size_srv", 
                                 "metrics":      [["bytes_rcvd"],["replies_ok_packets","replies_error_packets"],["queries_packets"]],
-                                "minValue":     [0, 8/300]},
+                                "minValue":     [1000000, 8/300]},
                         
                         "host:DNS_traffic  host:dns_qry_sent_rsp_rcvd host:dns_qry_rcvd_rsp_sent" : 
                                 {"name":        "dns_size_clt", 
                                 "metrics":      [["bytes_sent"],["queries_packets"],["replies_ok_packets","replies_error_packets"]],
-                                "minValue":     [0, 8/300]},
+                                "minValue":     [1000000, 8/300]},
                         
                         "host:anomalous_flows host:total_flows" :
                                 {"name":        "anmls_flows_srv",
@@ -118,7 +118,7 @@ measurements5m =        {"mac:arp_rqst_sent_rcvd_rpls" :
                         "host:anomalous_flows  host:total_flows" :
                                 {"name":        "anmls_flows_clt",
                                 "metrics":      [["flows_as_client"],["flows_as_client"]],
-                                "minValue":     [3/300, 3/300]},
+                                "minValue":     [3/300, 12/300]},
                         }
 
 
