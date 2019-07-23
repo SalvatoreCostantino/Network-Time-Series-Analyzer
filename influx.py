@@ -16,8 +16,15 @@ statsRSI = {"general":{},"host":{}} #RSI stats
 statsTreshold = {"general":{},"host":{}} #treshold
 
 def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start_time = "now()"):
+    
     for measure in measurements:
-       
+
+        if (measurements[measure]["name"] == "arp_packets" or  measurements[measure]["name"] == "ping_packets" or 
+            measurements[measure]["name"] == "dns_packets" or measurements[measure]["name"] == "dns_errors"):
+            doSum = True
+        else:
+            doSum = False
+        
         num_den=measure.split()
         numerator = num_den[0]
         denumerator2 = None
@@ -64,7 +71,13 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
             if(denumerator2 != None):
                 f_clause += """, "ntopng"."autogen".""" +'"'+denumerator2+'"'
 
-        
+        p2p_metric=''
+        if(numerator.find("unreachable")!=-1):
+            if(m_numerator[0].find("server")!=-1):
+                p2p_metric = "bytes_sent"
+            else:
+                p2p_metric = "bytes_rcvd"
+
         ips = hosts.get_points()
         for ip in ips:
 
@@ -127,14 +140,9 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
                     else:
                         n_points = n_points[-dim_denumerator2:]
                         d_points = d_points[-dim_denumerator2:]
-                
-                p2p_metric=''
-                if(numerator.find("unreachable")!=-1):
-                    if(m_numerator[0].find("server")!=-1):
-                        p2p_metric = "bytes_sent"
-                    else:
-                        p2p_metric = "bytes_rcvd"
-                
+
+                if p2p_metric:
+                    
                     results = client.query(""" SELECT NON_NEGATIVE_DIFFERENCE(SUM("%s")) AS "%s"
                                                 FROM "ntopng"."autogen"."host:p2p" 
                                                 WHERE time >= %s AND "%s"='%s' AND "ifid"='%s' 
@@ -150,9 +158,10 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
 
                 series=[]
                 seriesDate=[]
+                
                 for i in range(len(n_points)):
                     sum_numerator = 0
-                    sum_denumerator = cf.zeroKiller
+                    sum_denumerator = 0
 
                     if(n_points[i]['time'] != d_points[i]['time']):
                         break
@@ -175,22 +184,26 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
                     except TypeError: #portability
                         continue 
 
-                    if (sum_denumerator >= (cf.zeroKiller + measurements[measure]["minValue"][1])  or 
+                    if (sum_denumerator >= measurements[measure]["minValue"][1]  or 
                         sum_numerator >= measurements[measure]["minValue"][0]):
+
+                        if doSum:
+                                sum_denumerator += sum_numerator
                         
-                        if measurements[measure]["name"].find("packets")!=-1:
-                            thVal = cf.flooding_treshold
+                        if sum_denumerator != 0:
+                            ratioValue =  truncate(sum_numerator/sum_denumerator)
+                        else: 
+                            continue
 
-                        elif measurements[measure]["name"].find("size")!=-1:
+                        if measurements[measure]["name"].find("size")!=-1:
                             thVal = cf.packet_size_treshold
-
                         else:
                             thVal = cf.ratio_treshold
 
-                        ratioValue =  truncate(sum_numerator/sum_denumerator)
-
+               
                         if( not checkTreshold(ratioValue, measurements[measure]["name"],
-                            ip['value'],ifid,statsTreshold,n_points[i]['time'],"ip",thVal) or thVal == cf.flooding_treshold):
+                            ip['value'],ifid,statsTreshold,n_points[i]['time'],"ip",thVal) or 
+                            (doSum and measurements[measure]["name"] != "dns_errors" )):
                             continue
 
                         series.append(ratioValue)

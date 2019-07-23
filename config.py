@@ -6,7 +6,6 @@ influxHost = 'localhost'
 influxPort = 8086
 start_time = None
 RSI_treshold = 80
-zeroKiller = 0.000000000000000000001
 interfaces=["0"]
 prophet_diagnostic = False
 verbose = False
@@ -19,7 +18,6 @@ predictedPoint = 4
 totPredPoint = predictedPoint * 3
 num_points1h = 504 + predictedPoint # about 3 weeks
 showGraph = False
-flooding_treshold = 1
 ratio_treshold = 0.50
 packet_size_treshold = 576
 maxLine = 6
@@ -28,7 +26,6 @@ graphDir = "graph/"
 validationTime = 2 * dim_vlset
 limitRSI = 8000
 limitProphet = 45
-
 
 
 
@@ -62,14 +59,15 @@ measurements5m =        {"mac:arp_rqst_sent_rcvd_rpls" :
                     
                         "host:dns_qry_sent_rsp_rcvd": 
                                 {"name":        "dns_packets", 
-                                "metrics":      [["replies_ok_packets","replies_error_packets"], ["queries_packets"]],
+                                "metrics":      [["replies_ok_packets", "replies_error_packets"], ["queries_packets"]],
                                 "minValue":     [8/300, 8/300]},
                     
                         "host:dns_qry_sent_rsp_rcvd ": 
                                 { "name":       "dns_errors", 
-                                "metrics":      [["replies_error_packets"],["replies_ok_packets","replies_error_packets"]],
-                                "minValue":     [6/300, 8/300]},
+                                "metrics":      [["replies_error_packets"],["replies_ok_packets"]],
+                                "minValue":     [8/300, 8/300]},
                     
+                                         
                         "host:unreachable_flows host:total_flows": 
                                 {"name":        "port_unreach_srv", 
                                 "metrics":      [["flows_as_server"], ["flows_as_client"]],
