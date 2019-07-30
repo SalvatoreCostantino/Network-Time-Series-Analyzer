@@ -17,7 +17,7 @@ class RSI():
 
         incGeneralStats(statsRSI, self.__host, self.__p_type, self.__a_type)
 
-        if (rsiValue > cf.RSI_treshold):
+        if (rsiValue > cf.RSI_threshold):
             if(not self.__isPrinted and cf.verbose):
                 print("%-8s %-18s %-25s %-5s %-25s %-16s %.1f\n"
                     % ("START",self.__p_type,self.__host,self.__interface,date,"RSI",RSI),end = '',flush = True)

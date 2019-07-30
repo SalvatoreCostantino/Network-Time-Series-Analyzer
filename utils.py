@@ -46,12 +46,12 @@ def updateHostStats(currStats,cumStats,method):
 
 def updateAllHostStats(currStatsRSI,currStatsTH,cumStats):
     updateHostStats(currStatsRSI["host"],cumStats["host"],"RSI")
-    updateHostStats(currStatsTH["host"],cumStats["host"],"TRESHOLD")    
+    updateHostStats(currStatsTH["host"],cumStats["host"],"THRESHOLD")    
 
 
 def updateAllGeneralStats(currStatsRSI,currStatsTH,cumStats):
     updateGeneralStats(currStatsRSI["general"],cumStats["general"],"RSI")
-    updateGeneralStats(currStatsTH["general"],cumStats["general"],"TRESHOLD")
+    updateGeneralStats(currStatsTH["general"],cumStats["general"],"THRESHOLD")
 
         
 def mergeStats(currStats,cumStats,method):
@@ -88,7 +88,7 @@ def HostStats(stats,scoreTable,printAll):
                     if aType.find("clt")!=-1 or aType.find("unreach_srv"):
                         sumAtkScore+=stats[host][meth][aType]['anomalies'] * scoreTable[aType]
                         
-                        if(stats[host][meth][aType]['anomalies']!=0 and (meth == 'TRESHOLD' or (meth == 'PROPHET' and cf.checkCat))  
+                        if(stats[host][meth][aType]['anomalies']!=0 and (meth == 'THRESHOLD' or (meth == 'PROPHET' and cf.checkCat))  
                             and host not in toBlock):
                             
                             if(stats[host][meth]["type"] == "mac"):

@@ -2,7 +2,7 @@ import logging
 logging.basicConfig(level=logging.CRITICAL)
 
 from influxdb import DataFrameClient,  InfluxDBClient
-from influx import influxQuery1h, influxQuery5m, statsRSI,statsTreshold
+from influx import influxQuery1h, influxQuery5m, statsRSI,statsThreshold
 import schedule
 from utils import HostStats, printGeneralStats, updateAllGeneralStats,mergeStats,updateAllHostStats, createDir
 import time as tm
@@ -30,7 +30,7 @@ def signal_handler(signal, frame):
 
 def startRSI(client5m,printAll,cumulative_stat):
     influxQuery5m(client5m,cf.num_points5m,cf.period+1,cf.measurements5m,cf.interfaces)
-    updateAllHostStats(startRSI, statsTreshold, cumulative_stat)
+    updateAllHostStats(startRSI, statsThreshold, cumulative_stat)
     addresses = HostStats(cumulative_stat["host"],cf.scoreTable,printAll)
     if cf.mitigation:
         fw.block(addresses)
@@ -120,7 +120,7 @@ def main():
     client5m =  InfluxDBClient(host=cf.influxHost, port=cf.influxPort)
     
     q = None
-    cumulative_stat = {"general":{"TRESHOLD":{},"RSI":{},"PROPHET":{}},"host":{}}
+    cumulative_stat = {"general":{"THRESHOLD":{},"RSI":{},"PROPHET":{}},"host":{}}
 
     if(cf.prophet_diagnostic):
         q = Queue()
@@ -161,13 +161,13 @@ def main():
                     #cum_time += time
                     #counter +=1
         
-        updateAllHostStats(statsRSI, statsTreshold, cumulative_stat)
+        updateAllHostStats(statsRSI, statsThreshold, cumulative_stat)
 
         addresses = HostStats(cumulative_stat["host"],cf.scoreTable,True)
         if cf.mitigation:
             fw.block(addresses)
 
-    updateAllGeneralStats(statsRSI, statsTreshold, cumulative_stat)
+    updateAllGeneralStats(statsRSI, statsThreshold, cumulative_stat)
 
     printGeneralStats(cumulative_stat["general"])
     #if counter != 0:

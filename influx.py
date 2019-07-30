@@ -6,14 +6,14 @@ import config as cf
 import signal
 from utils import isLocalHost, convertDate, truncate, checkNotZero 
 import time
-from TresholdCkecker import checkTreshold
+from ThresholdCkecker import checkThreshold
 from HostProphet import HostProphet
 
 
 hostRSI = {} #host <-> RSI objects (one for each RSI metric)
 hostPROPHET = {}
 statsRSI = {"general":{},"host":{}} #RSI stats
-statsTreshold = {"general":{},"host":{}} #treshold
+statsThreshold = {"general":{},"host":{}} 
 
 def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start_time = "now()"):
     
@@ -196,13 +196,13 @@ def influxQuery5m(client, max_points, min_points ,measurements, interfaces,start
                             continue
 
                         if measurements[measure]["name"].find("size")!=-1:
-                            thVal = cf.packet_size_treshold
+                            thVal = cf.packet_size_threshold
                         else:
-                            thVal = cf.ratio_treshold
+                            thVal = cf.ratio_threshold
 
                
-                        if( not checkTreshold(ratioValue, measurements[measure]["name"],
-                            ip['value'],ifid,statsTreshold,n_points[i]['time'],"ip",thVal) or 
+                        if( not checkThreshold(ratioValue, measurements[measure]["name"],
+                            ip['value'],ifid,statsThreshold,n_points[i]['time'],"ip",thVal) or 
                             (doSum and measurements[measure]["name"] != "dns_errors" )):
                             continue
 

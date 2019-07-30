@@ -1,7 +1,7 @@
 import argparse
 
 examples = """examples:
-    ./net_tisean.py                             # only RSI and treshold diagnostic
+    ./net_tisean.py                             # only RSI and threshold diagnostic
     ./net_tisean.py -x -v -f results.txt        # prints to file all informaztions and executes mitigation 
     ./net_tisean.py -p -g -d myDir              # saves prophet graphs in a specific directory
     ./net_tisean.py -p -c -g                    # uses prophet, checks NDPI categories and saves graphs
